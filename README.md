@@ -42,7 +42,8 @@ nvm use
 node -v
 npm -v
 
-# 2) 依存導入
+# 2) 依存をクリーン再導入（失敗履歴を消す）
+rm -rf node_modules package-lock.json
 npm install
 
 # 3) DB 準備（ローカル prisma を利用）
@@ -90,3 +91,12 @@ npm run setup:dev
 - 査読モード
 - 文書比較モード
 - 共著モード
+
+## トラブルシュート
+
+- `sh: 1: next: not found`
+  - これは `next` 単体の問題ではなく、多くの場合 `npm install` が途中失敗して依存が未導入な状態です。
+  - Node 20 を有効化したうえで、上記セットアップ手順を最初から実行してください。
+
+- `Prisma only supports Node.js >= 16.13`
+  - 実行中の Node が古すぎます。`nvm install 20 && nvm use 20` を実行してから再試行してください。

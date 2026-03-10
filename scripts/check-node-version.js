@@ -9,7 +9,6 @@ if (!isSupported) {
   console.error(`Current: v${process.versions.node}`);
   console.error('Required: >= v20.0.0 (recommended: v20 LTS)\n');
   console.error('Please run:');
-  console.error('  nvm install');
-  console.error('  nvm use\n');
+  console.error('  nvm install 20 && nvm use 20\n');
   process.exit(1);
 }
