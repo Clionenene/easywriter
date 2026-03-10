@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id              String           @id @default(cuid())
+  title           String
+  documentType    String?
+  originalText    String
+  summary         String?
+  analysisMeta    String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  writingElements WritingElement[]
+  submissions     UserSubmission[]
+  progressStats   ProgressStats?
+}
+
+model WritingElement {
+  id                 String           @id @default(cuid())
+  projectId          String
+  title              String
+  description        String
+  category           String
+  difficulty         Int
+  estimatedMinutes   Int
+  dependencies       String
+  status             String           @default("todo")
+  completionCriteria String
+  exampleOutput      String
+  badExample         String?
+  hint               String?
+  whyNeeded          String?
+  userOutput         String?
+  feedback           String?
+  orderIndex         Int
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  project            Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  submissions        UserSubmission[]
+
+  @@index([projectId, orderIndex])
+}
+
+model UserSubmission {
+  id              String         @id @default(cuid())
+  projectId       String
+  elementId       String
+  content         String
+  aiFeedback      String
+  completionScore Int
+  isPassed        Boolean
+  createdAt       DateTime       @default(now())
+  project         Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  element         WritingElement @relation(fields: [elementId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, createdAt])
+}
+
+model ProgressStats {
+  id                String   @id @default(cuid())
+  projectId         String   @unique
+  totalElements     Int
+  completedElements Int      @default(0)
+  xp                Int      @default(0)
+  level             Int      @default(1)
+  streakDays        Int      @default(0)
+  lastWorkedAt      DateTime?
+  project           Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
