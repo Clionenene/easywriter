@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { analyzeDocument } from "@/lib/analyzer";
@@ -10,7 +11,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     const body = await req.json().catch(() => ({}));
     const analyzed = await analyzeDocument(project.originalText, body.documentType || project.documentType || "auto");
 
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       await tx.writingElement.deleteMany({ where: { projectId: params.id } });
       await tx.project.update({
         where: { id: params.id },

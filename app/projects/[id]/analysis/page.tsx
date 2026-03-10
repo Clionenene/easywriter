@@ -38,7 +38,7 @@ export default async function AnalysisPage({ params }: { params: { id: string } 
       <Card>
         <h2 className="mb-2 font-semibold">分解タスク ({elements.length})</h2>
         <div className="grid gap-2">
-          {elements.slice(0, 80).map((e) => (
+          {elements.slice(0, 80).map((e: (typeof elements)[number]) => (
             <div key={e.id} className="rounded border p-3 text-sm">
               <div className="font-semibold">{e.title}</div>
               <div>{e.description}</div>

@@ -20,7 +20,7 @@ export default async function HomePage() {
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">既存プロジェクト</h2>
         {projects.length === 0 && <Card>まだプロジェクトがありません。</Card>}
-        {projects.map((p) => (
+        {projects.map((p: (typeof projects)[number]) => (
           <Card key={p.id} className="flex items-center justify-between">
             <div>
               <div className="font-medium">{p.title}</div>

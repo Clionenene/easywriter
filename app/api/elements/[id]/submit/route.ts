@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { differenceInCalendarDays } from "date-fns";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
@@ -21,7 +22,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
     const xpGain = feedback.passed ? 20 + Math.max(0, element.difficulty - 1) * 5 : 5;
 
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       await tx.userSubmission.create({
         data: {
           projectId: element.projectId,
