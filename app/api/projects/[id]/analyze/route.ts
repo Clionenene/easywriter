@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { prisma } from "@/lib/prisma";
 import { analyzeDocument } from "@/lib/analyzer";
+import { defaultModel } from "@/lib/openai";
 
 function toErrorResponse(error: unknown) {
   if (!process.env.OPENAI_API_KEY) {
@@ -39,11 +40,10 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     if (!project) return NextResponse.json({ error: "プロジェクトが見つかりません" }, { status: 404 });
 
     const body = await req.json().catch(() => ({}));
-    const analyzed = await analyzeDocument(
-      project.originalText,
-      body.documentType || project.documentType || "auto",
-      body.model
-    );
+    const analyzed = await analyzeDocument(project.originalText, body.documentType || project.documentType || "auto", {
+      model: body.model || defaultModel,
+      verbose: body.verbose ?? true
+    });
 
     await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       await tx.writingElement.deleteMany({ where: { projectId: params.id } });
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
             redundantSections: analyzed.redundant_sections,
             structuralFeedback: analyzed.structural_feedback,
             logicalFeedback: analyzed.logical_feedback,
-            model: body.model || process.env.OPENAI_MODEL || "gpt-4.1-mini"
+            model: body.model || defaultModel
           })
         }
       });
