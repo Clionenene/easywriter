@@ -89,5 +89,6 @@ export async function analyzeDocument(text: string, hintType?: DocumentType | "a
     };
   }
 
-  throw lastError ?? new Error("分析に失敗しました");
+  const detail = lastError instanceof Error ? lastError.message : String(lastError);
+  throw new Error(`解析に失敗しました: ${detail}`);
 }

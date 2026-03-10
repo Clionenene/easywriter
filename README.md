@@ -60,6 +60,12 @@ npm run dev
 - `Prisma only supports Node.js >= 16.13`
   - Node が古すぎます。`nvm install 20 && nvm use 20` を実行してください。
 
+
+- `解析に失敗しました`
+  - API の `detail` を確認してください。
+  - `OPENAI_API_KEY が未設定` と出る場合は `.env` に有効なキーを設定してください。
+  - `schema validation error` と出る場合は LLM 応答がスキーマ不一致です。再実行または入力文書を短くして再試行してください。
+
 ## API
 
 - `POST /api/projects` (multipart: title, documentType, file)

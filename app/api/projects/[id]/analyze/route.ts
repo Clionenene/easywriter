@@ -1,7 +1,33 @@
 import { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
+import { ZodError } from "zod";
 import { prisma } from "@/lib/prisma";
 import { analyzeDocument } from "@/lib/analyzer";
+
+function toErrorResponse(error: unknown) {
+  if (!process.env.OPENAI_API_KEY) {
+    return NextResponse.json(
+      {
+        error: "解析に失敗しました",
+        detail: "OPENAI_API_KEY が未設定です。.env に OPENAI_API_KEY を設定してください。"
+      },
+      { status: 400 }
+    );
+  }
+
+  if (error instanceof ZodError) {
+    return NextResponse.json(
+      {
+        error: "解析に失敗しました",
+        detail: `LLM の出力形式が不正です（schema validation error）。${error.issues[0]?.message || ""}`
+      },
+      { status: 502 }
+    );
+  }
+
+  const message = error instanceof Error ? error.message : String(error);
+  return NextResponse.json({ error: "解析に失敗しました", detail: message }, { status: 500 });
+}
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -52,6 +78,6 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
     return NextResponse.json(analyzed);
   } catch (error) {
-    return NextResponse.json({ error: "解析に失敗しました", detail: String(error) }, { status: 500 });
+    return toErrorResponse(error);
   }
 }

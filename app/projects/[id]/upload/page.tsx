@@ -16,13 +16,14 @@ export default function AnalyzeTriggerPage() {
     setError("");
     try {
       const res = await fetch(`/api/projects/${params.id}/analyze`, { method: "POST" });
+      const json = await res.json().catch(() => ({}));
       if (!res.ok) {
-        const json = await res.json();
-        throw new Error(json.error || "解析失敗");
+        const detail = json.detail ? `\n詳細: ${json.detail}` : "";
+        throw new Error(`${json.error || "解析失敗"}${detail}`);
       }
       router.push(`/projects/${params.id}/analysis`);
     } catch (e) {
-      setError(String(e));
+      setError(e instanceof Error ? e.message : String(e));
     } finally {
       setLoading(false);
     }
@@ -34,7 +35,7 @@ export default function AnalyzeTriggerPage() {
         <h1 className="text-xl font-bold">2. 解析開始</h1>
         <p className="text-slate-600">文書を3層（構造・論理・執筆行動）で分析し、30個以上の実行タスクへ分解します。</p>
         <Button onClick={startAnalysis} disabled={loading}>{loading ? "解析中..." : "解析開始"}</Button>
-        {error && <p className="text-red-600">{error}</p>}
+        {error && <pre className="whitespace-pre-wrap rounded bg-red-50 p-3 text-sm text-red-700">{error}</pre>}
       </Card>
     </main>
   );
