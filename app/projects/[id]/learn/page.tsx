@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { ProjectActions } from "@/components/project-actions";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { NextElementResponse, SubmissionFeedback } from "@/types/domain";
@@ -75,6 +76,7 @@ export default function LearnPage() {
 
   return (
     <main className="mx-auto max-w-3xl space-y-4 p-6">
+      <ProjectActions projectId={params.id} />
       <Card className="space-y-2">
         <h1 className="text-xl font-bold">4. 学習画面（今やるべき1問）</h1>
         <div className="grid grid-cols-2 gap-2 text-sm md:grid-cols-4">

@@ -58,7 +58,7 @@ function mergeElements(base: WritingElementLLM[], extra: WritingElementLLM[]) {
   return merged;
 }
 
-export async function analyzeDocument(text: string, hintType?: DocumentType | "auto"): Promise<AnalysisResult> {
+export async function analyzeDocument(text: string, hintType?: DocumentType | "auto", modelOverride?: string): Promise<AnalysisResult> {
   let best: AnalysisResult | null = null;
   let elements: WritingElementLLM[] = [];
   let lastError: unknown;
@@ -66,7 +66,7 @@ export async function analyzeDocument(text: string, hintType?: DocumentType | "a
   for (let attempt = 0; attempt < 4; attempt += 1) {
     const minimumElements = attempt < 2 ? 30 : 40;
     try {
-      const raw = await jsonCompletion(buildPrompt({ text, hintType, minimumElements, existing: elements }));
+      const raw = await jsonCompletion(buildPrompt({ text, hintType, minimumElements, existing: elements }), modelOverride);
       const parsed = analysisSchema.parse(JSON.parse(raw));
       best = parsed;
       elements = mergeElements(elements, parsed.elements);

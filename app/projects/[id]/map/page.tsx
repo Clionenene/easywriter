@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { completionRate } from "@/lib/learning-flow";
+import { ProjectActions } from "@/components/project-actions";
 
 export default async function MapPage({ params }: { params: { id: string } }) {
   const project = await prisma.project.findUnique({
@@ -23,6 +24,7 @@ export default async function MapPage({ params }: { params: { id: string } }) {
 
   return (
     <main className="mx-auto max-w-5xl space-y-4 p-6">
+      <ProjectActions projectId={params.id} />
       <Card className="space-y-2">
         <h1 className="text-xl font-bold">5. 全体マップ</h1>
         <p>完了率 {done}/{total} ({rate}%)</p>

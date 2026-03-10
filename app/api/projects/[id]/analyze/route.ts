@@ -26,7 +26,11 @@ function toErrorResponse(error: unknown) {
   }
 
   const message = error instanceof Error ? error.message : String(error);
-  return NextResponse.json({ error: "解析に失敗しました", detail: message }, { status: 500 });
+  const friendly = message.includes("not a chat model")
+    ? "選択したモデルは chat/completions 非対応です。モデル一覧から gpt-4.1 / gpt-4o 系を選択してください。"
+    : message;
+
+  return NextResponse.json({ error: "解析に失敗しました", detail: friendly }, { status: 500 });
 }
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
@@ -35,7 +39,11 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     if (!project) return NextResponse.json({ error: "プロジェクトが見つかりません" }, { status: 404 });
 
     const body = await req.json().catch(() => ({}));
-    const analyzed = await analyzeDocument(project.originalText, body.documentType || project.documentType || "auto");
+    const analyzed = await analyzeDocument(
+      project.originalText,
+      body.documentType || project.documentType || "auto",
+      body.model
+    );
 
     await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       await tx.writingElement.deleteMany({ where: { projectId: params.id } });
@@ -48,7 +56,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
             missingSections: analyzed.missing_sections,
             redundantSections: analyzed.redundant_sections,
             structuralFeedback: analyzed.structural_feedback,
-            logicalFeedback: analyzed.logical_feedback
+            logicalFeedback: analyzed.logical_feedback,
+            model: body.model || process.env.OPENAI_MODEL || "gpt-4.1-mini"
           })
         }
       });

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { ProjectActions } from "@/components/project-actions";
 
 type AnalysisMeta = {
   missingSections: string[];
@@ -21,6 +22,7 @@ export default async function AnalysisPage({ params }: { params: { id: string } 
 
   return (
     <main className="mx-auto max-w-5xl space-y-4 p-6">
+      <ProjectActions projectId={params.id} />
       <Card className="space-y-2">
         <h1 className="text-2xl font-bold">3. 解析結果</h1>
         <p className="text-slate-700">要約: {project.summary || "未解析"}</p>

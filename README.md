@@ -66,6 +66,14 @@ npm run dev
   - `OPENAI_API_KEY が未設定` と出る場合は `.env` に有効なキーを設定してください。
   - `schema validation error` と出る場合は LLM 応答がスキーマ不一致です。再実行または入力文書を短くして再試行してください。
 
+
+- モデル選択
+  - 解析開始画面で利用可能モデルを選べます（`/api/models`）。
+  - chat/completions 非対応モデルを選んだ場合は、具体的なエラー詳細を表示します。
+
+- プロジェクト操作
+  - 各プロジェクト画面で「トップに戻る」「プロジェクトを削除」ボタンを利用できます。
+
 ## API
 
 - `POST /api/projects` (multipart: title, documentType, file)
