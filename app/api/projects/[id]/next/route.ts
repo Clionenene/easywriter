@@ -9,7 +9,8 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
   ]);
 
   const next = pickNextElement(elements);
-  const completed = elements.filter((e) => e.status === "done").length;
+  type Element = (typeof elements)[number];
+  const completed = elements.filter((e: Element) => e.status === "done").length;
 
   return NextResponse.json({
     next,

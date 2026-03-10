@@ -1,11 +1,12 @@
-import { DocumentType, ElementStatus } from "@prisma/client";
+export type DocumentType = "paper" | "grant_proposal" | "research_plan" | "essay" | "other";
+export type ElementStatus = "todo" | "in_progress" | "done";
 
 export type WritingElementLLM = {
   id: string;
   title: string;
   description: string;
   category: string;
-  difficulty: 1 | 2 | 3 | 4 | 5;
+  difficulty: number;
   estimated_minutes: number;
   dependencies: string[];
   status: ElementStatus;
@@ -35,18 +36,6 @@ export type SubmissionFeedback = {
   score: number;
   summary: string;
 };
-
-type ApiError = {
-  error: string;
-  detail?: string;
-};
-
-export type ProjectCreateResponse =
-  | {
-      id: string;
-      title: string;
-    }
-  | ApiError;
 
 export type NextElementResponse = {
   next: {

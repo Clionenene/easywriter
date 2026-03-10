@@ -6,11 +6,13 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
   if (!project) return NextResponse.json({ error: "not found" }, { status: 404 });
 
   const elements = await prisma.writingElement.findMany({ where: { projectId: params.id }, orderBy: { orderIndex: "asc" } });
-  const grouped = new Map<string, typeof elements>();
-  elements.forEach((e) => {
-    const arr = grouped.get(e.category) || [];
-    arr.push(e);
-    grouped.set(e.category, arr);
+  type Element = (typeof elements)[number];
+  const grouped = new Map<string, Element[]>();
+
+  elements.forEach((element: Element) => {
+    const arr = grouped.get(element.category) ?? [];
+    arr.push(element);
+    grouped.set(element.category, arr);
   });
 
   const markdown = [`# ${project.title}`, "", project.summary || ""].concat(

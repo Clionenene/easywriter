@@ -10,8 +10,11 @@ export default function DraftPage() {
   const [markdown, setMarkdown] = useState("");
 
   useEffect(() => {
-    fetch(`/api/projects/${params.id}/draft`).then((r) => r.json()).then((d) => setMarkdown(d.markdown || ""));
-  }, []);
+    if (!params.id) return;
+    fetch(`/api/projects/${params.id}/draft`)
+      .then((r) => r.json())
+      .then((d) => setMarkdown(d.markdown || ""));
+  }, [params.id]);
 
   return (
     <main className="mx-auto max-w-5xl p-6">

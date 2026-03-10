@@ -7,36 +7,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum DocumentType {
-  paper
-  grant_proposal
-  research_plan
-  essay
-  other
-}
-
-enum ElementStatus {
-  todo
-  in_progress
-  done
-}
-
 model Project {
-  id             String           @id @default(cuid())
-  title          String
-  documentType   DocumentType?
-  originalText   String
-  summary        String?
-  analysisMeta   String?
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  id              String           @id @default(cuid())
+  title           String
+  documentType    String?
+  originalText    String
+  summary         String?
+  analysisMeta    String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
   writingElements WritingElement[]
-  submissions    UserSubmission[]
-  progressStats  ProgressStats?
+  submissions     UserSubmission[]
+  progressStats   ProgressStats?
 }
 
 model WritingElement {
-  id                 String          @id @default(cuid())
+  id                 String           @id @default(cuid())
   projectId          String
   title              String
   description        String
@@ -44,7 +30,7 @@ model WritingElement {
   difficulty         Int
   estimatedMinutes   Int
   dependencies       String
-  status             ElementStatus   @default(todo)
+  status             String           @default("todo")
   completionCriteria String
   exampleOutput      String
   badExample         String?
@@ -53,24 +39,24 @@ model WritingElement {
   userOutput         String?
   feedback           String?
   orderIndex         Int
-  createdAt          DateTime        @default(now())
-  updatedAt          DateTime        @updatedAt
-  project            Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  project            Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
   submissions        UserSubmission[]
 
   @@index([projectId, orderIndex])
 }
 
 model UserSubmission {
-  id              String   @id @default(cuid())
+  id              String         @id @default(cuid())
   projectId       String
   elementId       String
   content         String
   aiFeedback      String
   completionScore Int
   isPassed        Boolean
-  createdAt       DateTime @default(now())
-  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt       DateTime       @default(now())
+  project         Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
   element         WritingElement @relation(fields: [elementId], references: [id], onDelete: Cascade)
 
   @@index([projectId, createdAt])

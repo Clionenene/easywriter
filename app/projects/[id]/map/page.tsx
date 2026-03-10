@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -17,7 +18,7 @@ export default async function MapPage({ params }: { params: { id: string } }) {
   if (!project) notFound();
 
   const total = project.writingElements.length;
-  const done = project.writingElements.filter((e) => e.status === "done").length;
+  const done = project.writingElements.filter((e: (typeof project.writingElements)[number]) => e.status === "done").length;
   const rate = completionRate(total, done);
 
   return (
@@ -33,7 +34,7 @@ export default async function MapPage({ params }: { params: { id: string } }) {
         <h2 className="mb-2 font-semibold">直近の完了/提出タスク</h2>
         {project.submissions.length === 0 ? <p className="text-sm text-slate-500">まだ提出履歴がありません。</p> : (
           <ul className="space-y-2 text-sm">
-            {project.submissions.map((s) => (
+            {project.submissions.map((s: (typeof project.submissions)[number]) => (
               <li key={s.id} className="rounded border p-2">{new Date(s.createdAt).toLocaleString()} / score: {s.completionScore} / {s.isPassed ? "passed" : "retry"}</li>
             ))}
           </ul>
@@ -41,7 +42,7 @@ export default async function MapPage({ params }: { params: { id: string } }) {
       </Card>
 
       <div className="grid gap-2 md:grid-cols-2">
-        {project.writingElements.map((e) => (
+        {project.writingElements.map((e: (typeof project.writingElements)[number]) => (
           <Card key={e.id} className={e.status === "done" ? "border-emerald-500" : e.status === "in_progress" ? "border-amber-500" : ""}>
             <div className="text-xs text-slate-500">{e.category}</div>
             <div className="font-semibold">{e.title}</div>

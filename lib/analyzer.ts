@@ -1,7 +1,6 @@
-import { DocumentType } from "@prisma/client";
 import { analysisSchema } from "@/lib/schemas";
 import { jsonCompletion } from "@/lib/openai";
-import { AnalysisResult, WritingElementLLM } from "@/types/domain";
+import { AnalysisResult, DocumentType, WritingElementLLM } from "@/types/domain";
 
 const typePerspectiveMap: Record<DocumentType | "auto", string> = {
   auto: "文書タイプを推定し、最適な評価軸を採用してください。",

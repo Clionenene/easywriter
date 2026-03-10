@@ -1,12 +1,19 @@
-import { ElementStatus, WritingElement } from "@prisma/client";
+type WritingElement = {
+  id: string;
+  status: string;
+  dependencies: string;
+  difficulty: number;
+  orderIndex: number;
+};
 
 export function pickNextElement(elements: WritingElement[]) {
   const byId = new Map(elements.map((e) => [e.id, e]));
+
   const candidates = elements
-    .filter((e) => e.status !== ElementStatus.done)
+    .filter((e) => e.status !== "done")
     .filter((e) => {
       const deps = JSON.parse(e.dependencies) as string[];
-      return deps.every((dep) => byId.get(dep)?.status === ElementStatus.done);
+      return deps.every((dep) => byId.get(dep)?.status === "done");
     })
     .sort((a, b) => a.difficulty - b.difficulty || a.orderIndex - b.orderIndex);
 
