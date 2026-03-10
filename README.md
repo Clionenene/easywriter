@@ -3,77 +3,62 @@
 EasyWriter は、論文・研究計画書・助成金申請書などをアップロードし、
 OpenAI API で 30 件以上の行動可能タスクへ分解して、Duolingo 風に「今やるべき1問」を進める執筆支援アプリです。
 
-## 原因の要約（環境エラー）
+## 原因の要約（今回の起動失敗）
 
-このプロジェクトで起きていた失敗の第一原因は、**Node.js v12 で Next.js 14 / Prisma 5 系を動かそうとしていたこと**です。
+今回のエラーの直接原因は **`DATABASE_URL` が未設定** なことです。
 
-主な依存の要件:
+- Prisma は `prisma/schema.prisma` で `url = env("DATABASE_URL")` を参照しています。
+- そのため SQLite 自体が問題ではなく、**接続文字列を .env から読む設計なのに .env が未整備** な点が原因です。
+- その状態で `app/page.tsx` が `prisma.project.findMany()` を実行すると起動時に例外で落ちます。
 
-- `next@14.x`: Node `>=18.17.0`
-- `prisma@5.x`: Node `>=16.13`
-- `@prisma/client@5.x`: Node `>=16.13`
-- `typescript@5.x`: Node `>=14.17`
-- `@typescript-eslint/*`（lint 系）: Node 18 以上を要求するものがある
+## ローカル開発の推奨環境
 
-そのため Node 12 では `npm install` 時点で Prisma preinstall に失敗し、
-結果として `next` などの実行バイナリも入らず `npm run dev` が `next: not found` になります。
+- Node.js: 20 LTS（推奨: 20.19.0）
+- npm: 10 以上
 
-## 推奨実行環境
+## 必要な環境変数
 
-- Node.js: **20 LTS**（本リポジトリは `20.19.0` を推奨）
-- npm: **10 以上**
+プロジェクトルート（`package.json` と同じ階層）に `.env` を置いてください。
 
-このリポジトリには以下を設定済みです:
+```env
+DATABASE_URL="file:./dev.db"
+OPENAI_API_KEY=""
+OPENAI_MODEL="gpt-5.4-pro"
+```
 
-- `.nvmrc`（`20.19.0`）
-- `package.json#engines`（`node>=20`, `npm>=10`）
-- `.npmrc`（`engine-strict=true`）
-- `preinstall` で Node バージョンチェック
+`.env.example` も同内容で用意してあります。
 
-## セットアップ（正しい順序）
-
-> 重要: `npm install` 成功前に `npx prisma migrate dev` / `npx prisma generate` を実行しないでください。
-> 先に実行すると、`npx` がローカル未導入の `prisma` を都度取得しにいって混乱の原因になります。
+## 初回セットアップ手順（迷わない順序）
 
 ```bash
-# 1) Node を合わせる
+# 0) Node を合わせる
 nvm install
 nvm use
-node -v
-npm -v
 
-# 2) 依存をクリーン再導入（失敗履歴を消す）
+# 1) 失敗履歴を消して依存を再導入
 rm -rf node_modules package-lock.json
 npm install
 
-# 3) DB 準備（ローカル prisma を利用）
-npx prisma migrate dev --name init
+# 2) Prisma クライアント生成
 npx prisma generate
+
+# 3) DB 初期化（初回）
+npx prisma migrate dev --name init
 
 # 4) 起動
 npm run dev
 ```
 
-## 技術スタック
+## トラブルシュート
 
-- Next.js 14.2.35
-- React 18
-- TypeScript
-- Tailwind CSS
-- Prisma 5.22.0 + SQLite
-- OpenAI SDK
-- zod
+- `DATABASE_URL が未設定です` / `Environment variable not found: DATABASE_URL`
+  - `.env` がないか、配置場所が違います。**プロジェクトルート**に配置してください。
 
-## 開発用コマンド
+- `sh: 1: next: not found`
+  - 依存導入失敗の二次障害です。Node バージョンを合わせたうえで `npm install` をやり直してください。
 
-```bash
-npm run dev
-npm run build
-npm run lint
-npm run prisma:migrate -- --name init
-npm run prisma:generate
-npm run setup:dev
-```
+- `Prisma only supports Node.js >= 16.13`
+  - Node が古すぎます。`nvm install 20 && nvm use 20` を実行してください。
 
 ## API
 
@@ -84,19 +69,3 @@ npm run setup:dev
 - `GET /api/projects/:id/next`
 - `POST /api/elements/:id/submit`
 - `GET /api/projects/:id/draft`
-
-## 今後の拡張
-
-- DOCX 取り込み
-- 査読モード
-- 文書比較モード
-- 共著モード
-
-## トラブルシュート
-
-- `sh: 1: next: not found`
-  - これは `next` 単体の問題ではなく、多くの場合 `npm install` が途中失敗して依存が未導入な状態です。
-  - Node 20 を有効化したうえで、上記セットアップ手順を最初から実行してください。
-
-- `Prisma only supports Node.js >= 16.13`
-  - 実行中の Node が古すぎます。`nvm install 20 && nvm use 20` を実行してから再試行してください。
